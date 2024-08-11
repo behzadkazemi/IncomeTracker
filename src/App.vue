@@ -1,30 +1,79 @@
-<script setup>
-
-</script>
-
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <Header :totalIncome="state.totalIncome" />
+  <Form :state="state" @add-income="AddIncome" />
+  <IncomeList :state="state" @remove-item="removeItem" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script>
+import { reactive, computed } from 'vue';
+import Header from './components/Header.vue';
+import Form from './components/Form.vue';
+import IncomeList from './components/IncomeList.vue';
+
+export default {
+  setup () {
+    const state = reactive({
+      income: [],
+      sortedIncome: computed(() => {
+        let temp = [];
+        
+        temp = state.income.sort(function (a, b) {
+          return b.date - a.date;
+        });
+
+        return temp;
+      }),
+      totalIncome: computed(() => {
+        let temp = 0;
+        if (state.income.length > 0) {
+          for (let i = 0; i < state.income.length; i++) {
+            temp += state.income[i].value;
+          }
+          return temp;
+        } else {
+          return 0;
+        }
+      })
+    });
+
+    function AddIncome(obj) {
+      let d = obj.date.split("-");
+      let newD = new Date(d[0], d[1], d[2]);
+
+      state.income = [...state.income, {
+        id: Date.now(),
+        desc: obj.desc,
+        value: parseInt(obj.value),
+        date: newD.getTime()
+      }]
+    }
+
+    function removeItem(id) {
+      state.income = state.income.filter(v => v.id != id);
+    }
+
+    // Return template data
+    return {
+      Header,
+      IncomeList,
+      Form,
+      state,
+      AddIncome,
+      removeItem
+    }
+  }
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+</script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Fira Sans', sans-serif;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+body {
+  background: #EEE;
 }
 </style>

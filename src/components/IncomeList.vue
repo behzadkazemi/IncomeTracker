@@ -5,7 +5,7 @@
   </template>
   
   <script>
-  import IncomeItem from './IncomeItem';
+  import IncomeItem from './IncomeItem.vue';
   
   export default {
     props: {
